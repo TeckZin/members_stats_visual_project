@@ -1,0 +1,52 @@
+@font-face {
+  font-family: 'Bebas Neue';
+  src: url('./fonts/BebasNeue-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Space Grotesk';
+  src: url('./fonts/SpaceGrotesk-VariableFont_wght.ttf') format('truetype');
+  font-weight: 300 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Montserrat';
+  src: url('./fonts/Montserrat-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('./fonts/Inter-VariableFont_opsz,wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@import 'tailwindcss';
+
+@theme {
+  /* Dark tones */
+  --color-night: #1a1d21;
+  --color-night-light: #24282e;
+  --color-slate: #3a3f47;
+
+  /* Light tones */
+  --color-cream: #e8e4df;
+  --color-warm-white: #f2efeb;
+
+  /* Accent colors */
+  --color-coral: #ff8c61;
+  --color-tangerine: #f5a070;
+  --color-amethyst: #a67db8;
+  --color-light-blue: #a8d0db;
+
+  /* Fonts */
+  --font-heading: 'Bebas Neue', sans-serif;
+  --font-inter: 'Inter', sans-serif;
+  --font-space: 'Space Grotesk', sans-serif;
+  --font-mont: 'Montserrat', sans-serif;
+}
