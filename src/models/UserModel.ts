@@ -1,26 +1,31 @@
 import type { User } from 'firebase/auth'
-import type { SectionModel, SectionsModel } from './SectionModels'
-import type { FileType } from './StatsModels'
+import {
+  type SectionsModel,
+  type SectionsModelDoc,
+  sectionsToDoc,
+  sectionsFromDoc,
+  initSectionsModel,
+} from './SectionModels'
 
-const Role = {
+export const Role = {
   Admin: 'admin',
   Manager: 'manager',
   Customer: 'customer',
   Guest: 'guest',
-}
-
-export interface UserModel {
-  id: string
-  role: Role
-  sections: SectionModel
-}
-
+} as const
 export type Role = (typeof Role)[keyof typeof Role]
+
+// Firestore shape for /users/{uid} — no sections blob, just a pointer
+export interface UserDoc {
+  uid: string
+  name: string
+  role: Role
+  sectionsRef: string // path to the sections doc, e.g. "sections/abc123"
+}
 
 export class UserSuper {
   name: string
   role: Role
-
   constructor(name: string, role: Role) {
     this.name = name
     this.role = role
@@ -29,23 +34,40 @@ export class UserSuper {
 
 export class UserApp extends UserSuper {
   uid: string
-  role: Role
   sections: SectionsModel
   authUser: User
 
   constructor(name: string, uid: string, role: Role, sections: SectionsModel, authUser: User) {
     super(name, role)
     this.uid = uid
-    this.role = role
     this.sections = sections
     this.authUser = authUser
+  }
+
+  get sectionsRef(): string {
+    return `sections/${this.uid}`
+  }
+
+  toDoc(): UserDoc {
+    return {
+      uid: this.uid,
+      name: this.name,
+      role: this.role,
+      sectionsRef: this.sectionsRef,
+    }
+  }
+
+  static fromDoc(doc: UserDoc, sections: SectionsModel, authUser: User): UserApp {
+    return new UserApp(doc.name, doc.uid, doc.role, sections, authUser)
+  }
+
+  static initial(name: string, authUser: User, role: Role = Role.Customer): UserApp {
+    return new UserApp(name, authUser.uid, role, initSectionsModel(authUser.uid), authUser)
   }
 }
 
 export class GuestUserApp extends UserSuper {
-  section?: SectionModel
-
-  constructor(name: string, fileName: string, filePath: string, type: FileType) {
+  constructor(name: string) {
     super(name, Role.Guest)
   }
 }

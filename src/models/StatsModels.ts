@@ -1,22 +1,20 @@
 import type { UserSuper } from './UserModel'
 
-const FileType = {
+export const FileType = {
   Excel: 'xlsx',
   CSV: 'csv',
   JSON: 'json',
   PDF: 'pdf',
 } as const
-
 export type FileType = (typeof FileType)[keyof typeof FileType]
 
-const FileKeyType = {
+export const FileKeyType = {
   Address: 'address',
   Name: 'name',
   PhoneNumber: 'phone-number',
   Email: 'email',
   Meta: 'meta',
 } as const
-
 export type FileKeyType = (typeof FileKeyType)[keyof typeof FileKeyType]
 
 export class FileClass {
@@ -30,14 +28,36 @@ export class FileClass {
     type: FileType,
     fileKeys: Record<FileKeyType, string>,
   ) {
-    this.fileInfo = {
-      fileName,
-      filePath,
-      type,
-    } as FileInfoModel
+    this.fileInfo = { fileName, filePath, type }
     this.fileKeys = fileKeys
-    this.fileData = [] as Record<string, string>[]
+    this.fileData = []
   }
+
+  // Firestore-safe plain object
+  toDoc(): FileClassDoc {
+    return {
+      fileInfo: { ...this.fileInfo },
+      fileKeys: { ...this.fileKeys },
+      fileData: [...this.fileData],
+    }
+  }
+
+  static fromDoc(doc: FileClassDoc): FileClass {
+    const f = new FileClass(
+      doc.fileInfo.fileName,
+      doc.fileInfo.filePath,
+      doc.fileInfo.type,
+      doc.fileKeys,
+    )
+    f.fileData = doc.fileData
+    return f
+  }
+}
+
+export interface FileClassDoc {
+  fileInfo: FileInfoModel
+  fileKeys: Record<FileKeyType, string>
+  fileData: Record<string, string>[]
 }
 
 export interface FileInfoModel {
@@ -54,7 +74,7 @@ export interface StatsInputModel {
 
 export interface GeoLocation {
   latitude: number
-  longtitude: number
+  longitude: number // was "longtitude"
   altitude?: number
 }
 
@@ -69,7 +89,7 @@ export interface Address {
 export interface MemberModel {
   name: string
   address: Address
-  location: Geolocation
+  location: GeoLocation
   metaData: Record<string, unknown>
   createdDate: Date
   lastUpdated: Date
